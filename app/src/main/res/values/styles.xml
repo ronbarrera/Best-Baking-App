@@ -14,4 +14,25 @@
         <item name="titleTextColor">@color/colorSecondary</item>
     </style>
 
+    <style name="LabelTextViewStyle" parent="@style/TextAppearance.MaterialComponents.Headline6">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/colorSecondaryDark</item>
+    </style>
+
+    <style name="SmallLabelTextViewStyle" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">3dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:drawablePadding">5dp</item>
+        <item name="android:textColor">@color/colorSecondary</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="Divider">
+        <item name="android:layout_width">1dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">?android:attr/listDivider</item>
+    </style>
 </resources>

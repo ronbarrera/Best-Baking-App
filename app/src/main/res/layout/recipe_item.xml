@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     style="@style/Widget.MaterialComponents.CardView"
+    android:backgroundTint="@color/colorPrimaryLight"
+    android:background="@drawable/touch_selector"
     android:elevation="8dp"
     app:cardUseCompatPadding="true"
     app:cardCornerRadius="10dp" >
@@ -34,10 +36,8 @@
 
         <TextView
             android:id="@+id/title_textview"
-            style="@style/TextAppearance.MaterialComponents.Headline6"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/colorSecondary"
+            style="@style/LabelTextViewStyle"
+            android:padding="3dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/vertical_middle"
@@ -46,11 +46,8 @@
 
         <TextView
             android:id="@+id/servings_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/SmallLabelTextViewStyle"
             android:drawableEnd="@drawable/ic_servings"
-            android:drawablePadding="5dp"
-            android:gravity="center"
             tools:text="8 Servigns"
             app:layout_constraintStart_toStartOf="@id/title_textview"
             app:layout_constraintTop_toBottomOf="@id/title_textview"
@@ -59,11 +56,8 @@
 
         <TextView
             android:id="@+id/ingredients_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/SmallLabelTextViewStyle"
             android:drawableEnd="@drawable/ic_ingredients"
-            android:drawablePadding="5dp"
-            android:gravity="center"
             tools:text="5 ingredients"
             app:layout_constraintStart_toEndOf="@+id/servings_textview"
             app:layout_constraintTop_toTopOf="@id/servings_textview"

@@ -20,4 +20,9 @@
     <color name="colorSecondary">#442C2E</color>
     <color name="colorSecondaryLight">#8B5B5F</color>
     <color name="colorSecondaryDark">#2E1E20</color>
+
+
+
+    <!-- the activated state color for a forecast list item -->
+    <color name="activated">#E0E0E0</color>
 </resources>

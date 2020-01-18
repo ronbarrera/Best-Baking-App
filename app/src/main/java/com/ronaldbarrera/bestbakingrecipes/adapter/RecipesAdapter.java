@@ -21,9 +21,15 @@ public class RecipesAdapter extends RecyclerView.Adapter<RecipesAdapterViewHolde
 
     private Context mContext;
     private List<RecipeModel> mRecipeList;
+    private final RecipesAdapterOnClickHandler mClickHandler;
 
-    public RecipesAdapter(Context context) {
-        mContext = context;
+    public RecipesAdapter(Context context, RecipesAdapterOnClickHandler clickHandler) {
+        this.mContext = context;
+        this.mClickHandler = clickHandler;
+    }
+
+    public interface RecipesAdapterOnClickHandler {
+        void onSelectedRecipe(int position);
     }
 
     @NonNull
@@ -31,7 +37,7 @@ public class RecipesAdapter extends RecyclerView.Adapter<RecipesAdapterViewHolde
     public RecipesAdapterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View view = layoutInflater.inflate(R.layout.recipe_item, parent, false);
-        return new RecipesAdapterViewHolder(view);
+        return new RecipesAdapterViewHolder(view, mClickHandler);
     }
 
     @Override
@@ -46,7 +52,7 @@ public class RecipesAdapter extends RecyclerView.Adapter<RecipesAdapterViewHolde
             holder.titleTextView.setText(recipe.getName());
             holder.titleTextView.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
             holder.servingsTextView.setText(mContext.getString(R.string.servings_text, amountOfServings));
-            holder.ingredientsTextView.setText(mContext.getString(R.string.ingredients_text, amountOfIngredients));
+            holder.ingredientsTextView.setText(mContext.getString(R.string.number_of_ingredients_text, amountOfIngredients));
         }
     }
 

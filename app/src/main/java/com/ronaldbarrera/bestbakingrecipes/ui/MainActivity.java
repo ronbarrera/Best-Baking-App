@@ -1,17 +1,23 @@
-package com.ronaldbarrera.bestbakingrecipes;
+package com.ronaldbarrera.bestbakingrecipes.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.Gson;
+import com.ronaldbarrera.bestbakingrecipes.R;
+import com.ronaldbarrera.bestbakingrecipes.RecipesApiClient;
+import com.ronaldbarrera.bestbakingrecipes.RecipesApiInterface;
 import com.ronaldbarrera.bestbakingrecipes.adapter.RecipesAdapter;
-import com.ronaldbarrera.bestbakingrecipes.model.IngredientModel;
 import com.ronaldbarrera.bestbakingrecipes.model.RecipeModel;
 
 import java.util.List;
@@ -22,7 +28,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements RecipesAdapter.RecipesAdapterOnClickHandler {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -30,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView mRecyclerView;
 
     private RecipesAdapter mAdapter;
+    private List<RecipeModel> mRecipeList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +53,11 @@ public class MainActivity extends AppCompatActivity {
             layoutManager = new GridLayoutManager(MainActivity.this, 3);
         }
         mRecyclerView.setLayoutManager(layoutManager);
-        mAdapter = new RecipesAdapter(this);
+        mAdapter = new RecipesAdapter(this, this);
         mRecyclerView.setAdapter(mAdapter);
 
         fetchRecipes();
+
     }
 
 
@@ -63,9 +71,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<RecipeModel>> call, Response<List<RecipeModel>> response) {
                 if(response.body() != null) {
-                    List<RecipeModel> list = response.body();
-                    Log.d(TAG, "onResponse : list size " + list.size());
-                    onSetupUI(list);
+                    mRecipeList = response.body();
+                    Log.d(TAG, "onResponse : list size " + mRecipeList.size());
+                    onSetupUI(mRecipeList);
                 }
             }
 
@@ -85,6 +93,20 @@ public class MainActivity extends AppCompatActivity {
     private void onSetupUI(List<RecipeModel> list) {
         Log.d(TAG, "onSetupUI");
         mAdapter.setRecipes(list);
+    }
+
+
+    @Override
+    public void onSelectedRecipe(int position) {
+        Log.d(TAG, "onSelectedRecipe : " + position);
+        Context context = this;
+        Class destinationClass = RecipeActivity.class;
+        Intent intentToStartRecipeActivity = new Intent(context, destinationClass);
+
+        Gson gson = new Gson();
+        intentToStartRecipeActivity.putExtra("recipe", gson.toJson(mRecipeList.get(position)));
+        startActivity(intentToStartRecipeActivity);
+
     }
 }
 
