@@ -6,23 +6,43 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 
 import com.ronaldbarrera.bestbakingrecipes.R;
+import com.ronaldbarrera.bestbakingrecipes.ui.MainActivity;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Implementation of App Widget functionality.
  */
 public class IngredientsWidgetProvider extends AppWidgetProvider {
 
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                               String name, String ingredients, int appWidgetId) {
+    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
+
+        SharedPreferences sharedPreferences = context.getSharedPreferences(MainActivity.SHAREDPREF_KEY, MODE_PRIVATE);
+        String widget_title = sharedPreferences.getString(MainActivity.TITLE_SHAREDPREF_KEY, null);
 
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.ingredients_widget_provider);
-        views.setTextViewText(R.id.appwidget_recipe_text, name);
-        views.setTextViewText(R.id.appwidget_list, ingredients);
+
+        Intent titleIntent = new Intent(context, MainActivity.class);
+        PendingIntent titlePendingIntent = PendingIntent.getActivity(context, 0, titleIntent, 0);
+        views.setOnClickPendingIntent(R.id.appwidget_default_label, titlePendingIntent);
+
+        if(widget_title != null) {
+            views.setViewVisibility(R.id.appwidget_default_label, View.GONE);
+
+            views.setTextViewText(R.id.appwidget_title_text, widget_title);
+            views.setViewVisibility(R.id.appwidget_title_text, View.VISIBLE);
+            views.setOnClickPendingIntent(R.id.appwidget_title_text, titlePendingIntent);
+
+            views.setViewVisibility(R.id.appwidget_ingredients_label_text, View.VISIBLE);
+            views.setViewVisibility(R.id.appwidget_listview, View.VISIBLE);
+        }
 
         Intent intent = new Intent(context, ListViewWidgetService.class);
         views.setRemoteAdapter(R.id.appwidget_listview, intent);
@@ -31,45 +51,17 @@ public class IngredientsWidgetProvider extends AppWidgetProvider {
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
 
-    public static void updateIngredientsWidgets(Context context, AppWidgetManager appWidgetManager, String name, String ingredients, int[] appWidgetIds) {
+    public static void updateIngredientsWidgets(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         for (int appWidgetId : appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, name, ingredients, appWidgetId);
+            updateAppWidget(context, appWidgetManager, appWidgetId);
         }
     }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // There may be multiple widgets active, so update all of them
-//        for (int appWidgetId : appWidgetIds) {
-//            //updateAppWidget(context, appWidgetManager, appWidgetId);
-//        }
-
-        Log.d("IngredientsWidgetProvider", "onUpdate called");
-
         for (int appWidgetId : appWidgetIds) {
-            RemoteViews views = new RemoteViews(
-
-                    context.getPackageName(),
-                    R.layout.ingredients_widget_provider
-
-            );
-
-            // click event handler for the title, launches the app when the user clicks on title
-//            Intent titleIntent = new Intent(context, MainActivity.class);
-//            PendingIntent titlePendingIntent = PendingIntent.getActivity(context, 0, titleIntent, 0);
-//            views.setOnClickPendingIntent(R.id.widgetTitleLabel, titlePendingIntent);
-
-            Intent intent = new Intent(context, ListViewWidgetService.class);
-            views.setRemoteAdapter(R.id.appwidget_listview, intent);
-
-//            // template to handle the click listener for each item
-//            Intent clickIntentTemplate = new Intent(context, DetailsActivity.class);
-//            PendingIntent clickPendingIntentTemplate = TaskStackBuilder.create(context)
-//                    .addNextIntentWithParentStack(clickIntentTemplate)
-//                    .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-//            views.setPendingIntentTemplate(R.id.widgetListView, clickPendingIntentTemplate);
-
-            appWidgetManager.updateAppWidget(appWidgetId, views);
+            updateAppWidget(context, appWidgetManager, appWidgetId);
         }
     }
 
@@ -81,18 +73,6 @@ public class IngredientsWidgetProvider extends AppWidgetProvider {
     @Override
     public void onDisabled(Context context) {
         // Enter relevant functionality for when the last widget is disabled
-    }
-
-    @Override
-    public void onReceive(final Context context, Intent intent) {
-        final String action = intent.getAction();
-        if (action.equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)) {
-            // refresh all your widgets
-            AppWidgetManager mgr = AppWidgetManager.getInstance(context);
-            ComponentName cn = new ComponentName(context, IngredientsWidgetProvider.class);
-            mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.appwidget_listview);
-        }
-        super.onReceive(context, intent);
     }
 }
 

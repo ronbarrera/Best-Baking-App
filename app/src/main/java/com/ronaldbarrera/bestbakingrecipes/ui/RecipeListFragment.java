@@ -23,12 +23,11 @@ import com.ronaldbarrera.bestbakingrecipes.model.RecipeModel;
 import com.ronaldbarrera.bestbakingrecipes.model.StepModel;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeListFragment extends Fragment implements StepsAdapter.StepsAdapterOnClickHandler {
 
-    private static final String TAG = RecipeListFragment.class.getSimpleName();
+    private static final String SAVEDINSTANCESTATE_KEY = "recipe";
     private RecipeModel recipe;
 
     // Define a new interface OnImageClickListener that triggers a callback in the host activity
@@ -63,13 +62,9 @@ public class RecipeListFragment extends Fragment implements StepsAdapter.StepsAd
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_recipe_list, container, false);
 
-
-        Log.d(TAG, "onCreateView called");
-
         if(savedInstanceState != null) {
-            Log.d(TAG, "saveInstanceState != null");
             Gson gson = new Gson();
-            String strOjb = savedInstanceState.getString("recipe");
+            String strOjb = savedInstanceState.getString(SAVEDINSTANCESTATE_KEY);
             Type list = new TypeToken<RecipeModel>() {}.getType();
             recipe = gson.fromJson(strOjb,list);
         }
@@ -95,7 +90,6 @@ public class RecipeListFragment extends Fragment implements StepsAdapter.StepsAd
 
     @Override
     public void setOnItemClickListener(int position) {
-        Log.d(TAG, "setOnItemClickListerner position : " + position);
         mCallback.onStepSelected(position);
     }
 
@@ -106,6 +100,6 @@ public class RecipeListFragment extends Fragment implements StepsAdapter.StepsAd
     @Override
     public void onSaveInstanceState(Bundle currentState) {
         Gson gson = new Gson();
-        currentState.putString("recipe", gson.toJson(recipe));
+        currentState.putString(SAVEDINSTANCESTATE_KEY, gson.toJson(recipe));
     }
 }

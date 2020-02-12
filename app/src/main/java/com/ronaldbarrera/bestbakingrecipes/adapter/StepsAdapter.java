@@ -26,7 +26,6 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsAdapter
         this.mClickHandler = mClickHandler;
     }
 
-
     public interface StepsAdapterOnClickHandler {
         void setOnItemClickListener(int position);
     }

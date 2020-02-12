@@ -44,15 +44,11 @@ public class RecipesAdapter extends RecyclerView.Adapter<RecipesAdapterViewHolde
 
     @Override
     public void onBindViewHolder(@NonNull RecipesAdapterViewHolder holder, int position) {
-        Log.d(TAG, "onBindVidewHolder called");
-
         if(mRecipeList != null) {
             RecipeModel recipe = mRecipeList.get(position);
             int amountOfServings = recipe.getServings();
             int amountOfIngredients = recipe.getIngredients().size();
             String imageUrl = recipe.getImage();
-
-            Log.d(TAG, "onBindViewHolder imageUrl = " + imageUrl);
 
             if(!imageUrl.isEmpty()) {
                 Picasso.get()

@@ -5,18 +5,34 @@
     android:padding="@dimen/widget_margin">
 
     <TextView
-        android:id="@+id/appwidget_recipe_text"
+        android:id="@+id/appwidget_default_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_margin="16dp"
+        android:textAlignment="center"
+        android:contentDescription="@string/appwidget_default_text"
+        android:text="@string/appwidget_default_text"
+        android:textColor="@color/colorSecondary"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/appwidget_title_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:contentDescription="@string/appwidget_text"
-        android:text="@string/appwidget_text"
+        android:contentDescription="@string/appwidget_default_text"
+        android:text="@string/appwidget_default_text"
         android:textColor="@color/colorSecondary"
         android:textSize="15sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:visibility="gone"/>
+
     <TextView
         android:id="@+id/appwidget_ingredients_label_text"
         android:layout_width="wrap_content"
@@ -25,23 +41,20 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:contentDescription="@string/ingredients_label_textview"
-        android:layout_below="@id/appwidget_recipe_text"
+        android:layout_below="@id/appwidget_title_text"
         android:text="@string/ingredients_label_textview"
         android:textColor="@color/colorSecondary"
         android:textSize="14sp"
-        android:textStyle="bold|italic" />
+        android:textStyle="bold|italic"
+        android:visibility="gone"/>
 
     <ListView
         android:id="@+id/appwidget_listview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/appwidget_ingredients_label_text"/>
+        android:layout_below="@id/appwidget_ingredients_label_text"
+        android:visibility="gone"/>
 
 
-    <TextView
-        android:id="@+id/appwidget_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/appwidget_listview"/>
 
 </RelativeLayout>

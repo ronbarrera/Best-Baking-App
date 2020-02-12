@@ -7,8 +7,6 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.media.session.MediaButtonReceiver;
 
@@ -18,35 +16,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ronaldbarrera.bestbakingrecipes.R;
-import com.ronaldbarrera.bestbakingrecipes.model.RecipeModel;
 import com.ronaldbarrera.bestbakingrecipes.model.StepModel;
 
 import java.lang.reflect.Type;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -57,16 +41,17 @@ public class StepDetailsFragment extends Fragment {
     private static final String TAG = StepDetailsFragment.class.getSimpleName();
 
     private StepModel mStep;
-    private int mListIndex;
 
     private static MediaSessionCompat mMediaSession;
     private PlaybackStateCompat.Builder mStateBuilder;
     private SimpleExoPlayer mExoPlayer;
-    private PlayerView mPlayerView;
     private boolean mTwoPane = false;
     private long mCurrentPosition;
 
-    private TextView stepDescription;
+    @BindView(R.id.step_detail_title_textview) TextView stepTitle;
+    @BindView(R.id.step_description_textview) TextView stepDescription;
+    @BindView(R.id.exo_player_view) PlayerView mPlayerView;
+
     public StepDetailsFragment() {
         // Required empty public constructor
     }
@@ -74,7 +59,6 @@ public class StepDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -84,25 +68,15 @@ public class StepDetailsFragment extends Fragment {
         ButterKnife.bind(this, rootView);
 
         if(savedInstanceState != null) {
-            Log.d(TAG, "saveInstanceState != null");
             Gson gson = new Gson();
             String strOjb = savedInstanceState.getString("steps");
             Type list = new TypeToken<StepModel>() {}.getType();
             mStep = gson.fromJson(strOjb,list);
             mCurrentPosition = savedInstanceState.getLong("player_current_position");
-
         }
-
-        TextView stepTitle = rootView.findViewById(R.id.step_detail_title_textview);
-        stepDescription = rootView.findViewById(R.id.step_description_textview);
-        mPlayerView = rootView.findViewById(R.id.exo_player_view);
-
 
         stepTitle.setText(mStep.getShortDescription());
         stepDescription.setText(mStep.getDescription());
-
-        Log.d(TAG, "onCreateView called" );
-
 
         if(mStep.getVideoURL() == null || mStep.getVideoURL().equals("")) {
             mPlayerView.setVisibility(View.GONE);
@@ -115,7 +89,6 @@ public class StepDetailsFragment extends Fragment {
             initializeMediaSession();
             initializePlayer(Uri.parse(mStep.getVideoURL()));
         }
-
         return rootView;
     }
 
@@ -135,7 +108,6 @@ public class StepDetailsFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy");
         if(mExoPlayer != null) {
             releasePlayer();
             mMediaSession.setActive(false);
@@ -153,8 +125,6 @@ public class StepDetailsFragment extends Fragment {
      */
     private void initializePlayer(Uri mediaUri) {
         if (mExoPlayer == null) {
-            Log.d(TAG, "initializePlayer + mExoPlayer == null");
-
             // Creating the player
             mExoPlayer = new SimpleExoPlayer.Builder(getContext()).build();
 
@@ -172,7 +142,6 @@ public class StepDetailsFragment extends Fragment {
             mExoPlayer.prepare(videoSource);
             mExoPlayer.setPlayWhenReady(true);
             mExoPlayer.seekTo(mCurrentPosition);
-
         }
     }
 
@@ -207,15 +176,12 @@ public class StepDetailsFragment extends Fragment {
 
         mMediaSession.setPlaybackState(mStateBuilder.build());
 
-
         // MySessionCallback has methods that handle callbacks from a media controller.
         mMediaSession.setCallback(new MySessionCallback());
 
         // Start the Media Session since the activity is active.
         mMediaSession.setActive(true);
-
     }
-    
 
     /**
      * Media Session Callbacks, where all external clients control the player.
@@ -247,5 +213,4 @@ public class StepDetailsFragment extends Fragment {
             MediaButtonReceiver.handleIntent(mMediaSession, intent);
         }
     }
-
 }
