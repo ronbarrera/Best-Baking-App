@@ -6,8 +6,6 @@ import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.ronaldbarrera.bestbakingrecipes.R;
 import com.ronaldbarrera.bestbakingrecipes.model.RecipeModel;

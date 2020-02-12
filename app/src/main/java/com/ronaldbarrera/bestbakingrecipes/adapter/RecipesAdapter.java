@@ -2,7 +2,6 @@ package com.ronaldbarrera.bestbakingrecipes.adapter;
 
 import android.content.Context;
 import android.graphics.Paint;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ronaldbarrera.bestbakingrecipes.R;
 import com.ronaldbarrera.bestbakingrecipes.model.RecipeModel;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

@@ -37,8 +37,7 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    @BindView(R.id.recipes_recyclerview)
-    RecyclerView mRecyclerView;
+    @BindView(R.id.recipes_recyclerview) RecyclerView mRecyclerView;
 
     private RecipesAdapter mAdapter;
     private List<RecipeModel> mRecipeList;
@@ -69,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
     }
 
     private void fetchRecipes() {
-        Log.d(TAG, "fetchRecipes");
 
         RecipesApiInterface apiInterface = RecipesApiClient.getClient().create(RecipesApiInterface.class);
         Call<List<RecipeModel>> call = apiInterface.getRecipes();
@@ -98,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
         mAdapter.setRecipes(list);
     }
 
-
     @Override
     public void onSelectedRecipe(int position) {
         Context context = this;
@@ -113,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
         //Trigger data update to handle the widgets and force a data refresh
         IngredientsWidgetProvider.updateIngredientsWidgets(this, appWidgetManager, appWidgetIds);
         appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetManager.getAppWidgetIds(componentName), R.id.appwidget_listview);
+
         Gson gson = new Gson();
         intentToStartRecipeActivity.putExtra("recipe", gson.toJson(mRecipeList.get(position)));
         startActivity(intentToStartRecipeActivity);
