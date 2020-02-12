@@ -13,6 +13,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.ronaldbarrera.bestbakingrecipes.R;
 import com.ronaldbarrera.bestbakingrecipes.adapter.IngredientsAdapter;
 import com.ronaldbarrera.bestbakingrecipes.adapter.StepsAdapter;
@@ -20,6 +22,8 @@ import com.ronaldbarrera.bestbakingrecipes.model.IngredientModel;
 import com.ronaldbarrera.bestbakingrecipes.model.RecipeModel;
 import com.ronaldbarrera.bestbakingrecipes.model.StepModel;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeListFragment extends Fragment implements StepsAdapter.StepsAdapterOnClickHandler {
@@ -60,7 +64,15 @@ public class RecipeListFragment extends Fragment implements StepsAdapter.StepsAd
         View rootView = inflater.inflate(R.layout.fragment_recipe_list, container, false);
 
 
-        Log.d(TAG, "onCreateView called : " + recipe.getName());
+        Log.d(TAG, "onCreateView called");
+
+        if(savedInstanceState != null) {
+            Log.d(TAG, "saveInstanceState != null");
+            Gson gson = new Gson();
+            String strOjb = savedInstanceState.getString("recipe");
+            Type list = new TypeToken<RecipeModel>() {}.getType();
+            recipe = gson.fromJson(strOjb,list);
+        }
 
         List<IngredientModel> ingredientList = recipe.getIngredients();
         RecyclerView ingredientsRecyclerView = rootView.findViewById(R.id.ingredients_recyclerview);
@@ -89,5 +101,11 @@ public class RecipeListFragment extends Fragment implements StepsAdapter.StepsAd
 
     public void setRecipe(RecipeModel recipe) {
         this.recipe = recipe;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle currentState) {
+        Gson gson = new Gson();
+        currentState.putString("recipe", gson.toJson(recipe));
     }
 }

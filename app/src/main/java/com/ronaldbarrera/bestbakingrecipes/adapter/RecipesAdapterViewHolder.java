@@ -2,6 +2,7 @@ package com.ronaldbarrera.bestbakingrecipes.adapter;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,7 @@ public class RecipesAdapterViewHolder extends RecyclerView.ViewHolder implements
 
     private static final String TAG = RecipesAdapterViewHolder.class.getSimpleName();
 
+    @BindView(R.id.recipe_imageview) ImageView recipeImageView;
     @BindView(R.id.title_textview) TextView titleTextView;
     @BindView(R.id.servings_textview) TextView servingsTextView;
     @BindView(R.id.ingredients_textview) TextView ingredientsTextView;

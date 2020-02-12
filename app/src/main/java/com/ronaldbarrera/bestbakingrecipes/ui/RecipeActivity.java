@@ -6,8 +6,11 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 
 import com.google.gson.Gson;
@@ -27,6 +30,7 @@ public class RecipeActivity extends AppCompatActivity implements RecipeListFragm
     RecipeModel recipe;
 
     private boolean mTwoPane;
+    private  FragmentManager fragmentManager;
 
 
     @Override
@@ -34,45 +38,75 @@ public class RecipeActivity extends AppCompatActivity implements RecipeListFragm
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe);
 
-        Gson gson = new Gson();
-        String strOjb = getIntent().getStringExtra("recipe");
-        recipe = gson.fromJson(strOjb, RecipeModel.class);
 
-        Log.d(TAG, "onCreate : " + recipe.getName());
+            Gson gson = new Gson();
+            String strOjb = getIntent().getStringExtra("recipe");
+            recipe = gson.fromJson(strOjb, RecipeModel.class);
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle(recipe.getName());
+            Log.d(TAG, "onCreate : " + recipe.getName());
 
-        if(findViewById(R.id.step_details_framelayout) != null) {
-            mTwoPane = true;
+            ActionBar actionBar = getSupportActionBar();
+            actionBar.setTitle(recipe.getName());
 
-            FragmentManager fragmentManager = getSupportFragmentManager();
+            if(savedInstanceState == null) {
 
-            // Creating a new head BodyPartFragment
-            StepDetailsFragment stepDetailsFragment = new StepDetailsFragment();
-            fragmentManager.beginTransaction()
-                    .add(R.id.step_details_framelayout, stepDetailsFragment)
-                    .commit();
+                fragmentManager = getSupportFragmentManager();
 
-        } else {
-            mTwoPane = false;
-        }
-
-        Log.d(TAG, "mTwoPane = " + mTwoPane);
+                RecipeListFragment recipeListFragment = new RecipeListFragment();
+                recipeListFragment.setRecipe(recipe);
+                fragmentManager.beginTransaction()
+                        .add(R.id.master_list_fragment, recipeListFragment)
+                        .commit();
 
 
-            FragmentManager fragmentManager = getSupportFragmentManager();
+                if (findViewById(R.id.step_details_framelayout) != null) {
+                    mTwoPane = true;
 
-        RecipeListFragment recipeListFragment = new RecipeListFragment();
-        recipeListFragment.setRecipe(recipe);
-        fragmentManager.beginTransaction()
-                .add(R.id.master_list_fragment, recipeListFragment)
-                .commit();
+                    StepDetailsFragment stepDetailsFragment = new StepDetailsFragment();
+                    stepDetailsFragment.setStep(recipe.getSteps().get(0));
+                    stepDetailsFragment.setIsTwoPane(mTwoPane);
+                    fragmentManager.beginTransaction()
+                            .add(R.id.step_details_framelayout, stepDetailsFragment)
+                            .commit();
+
+
+                } else {
+                    mTwoPane = false;
+                }
+
+            }
+            Log.d(TAG, "mTwoPane = " + mTwoPane);
+
+
 
     }
 
     @Override
     public void onStepSelected(int position) {
         Log.d(TAG, "onStepSelected. Position: " + position);
+
+        if(mTwoPane) {
+
+            StepDetailsFragment newFragment = new StepDetailsFragment();
+            // Give the correct image resources to the new fragment'
+            newFragment.setStep(recipe.getSteps().get(position));
+            newFragment.setIsTwoPane(mTwoPane);
+            // Replace the old head fragment with a new one
+            fragmentManager.beginTransaction()
+                    .replace(R.id.step_details_framelayout, newFragment)
+                    .commit();
+        } else {
+
+
+            // Attach the Bundle to an intent
+            final Intent intent = new Intent(this, StepDetailsActivity.class);
+            Gson gson = new Gson();
+            intent.putExtra("steps_list", gson.toJson(recipe.getSteps()));
+            intent.putExtra("step_index", position);
+            startActivity(intent);
+
+        }
+
+
     }
 }

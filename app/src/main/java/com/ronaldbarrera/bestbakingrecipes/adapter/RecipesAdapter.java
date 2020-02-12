@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ronaldbarrera.bestbakingrecipes.R;
 import com.ronaldbarrera.bestbakingrecipes.model.RecipeModel;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -48,6 +50,16 @@ public class RecipesAdapter extends RecyclerView.Adapter<RecipesAdapterViewHolde
             RecipeModel recipe = mRecipeList.get(position);
             int amountOfServings = recipe.getServings();
             int amountOfIngredients = recipe.getIngredients().size();
+            String imageUrl = recipe.getImage();
+
+            Log.d(TAG, "onBindViewHolder imageUrl = " + imageUrl);
+
+            if(!imageUrl.isEmpty()) {
+                Picasso.get()
+                        .load(imageUrl)
+                        .error(R.drawable.ic_recipe_book)
+                        .into(holder.recipeImageView);
+            }
 
             holder.titleTextView.setText(recipe.getName());
             holder.titleTextView.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
