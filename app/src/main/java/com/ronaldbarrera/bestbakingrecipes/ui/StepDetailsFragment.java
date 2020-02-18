@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ronaldbarrera.bestbakingrecipes.R;
@@ -46,11 +45,13 @@ public class StepDetailsFragment extends Fragment {
     private PlaybackStateCompat.Builder mStateBuilder;
     private SimpleExoPlayer mExoPlayer;
     private boolean mTwoPane = false;
-    private long mCurrentPosition;
 
     @BindView(R.id.step_detail_title_textview) TextView stepTitle;
     @BindView(R.id.step_description_textview) TextView stepDescription;
     @BindView(R.id.exo_player_view) PlayerView mPlayerView;
+    private boolean playWhenReady;
+    private long playbackPosition;
+    private int currentWindow;
 
     public StepDetailsFragment() {
         // Required empty public constructor
@@ -72,23 +73,17 @@ public class StepDetailsFragment extends Fragment {
             String strOjb = savedInstanceState.getString("steps");
             Type list = new TypeToken<StepModel>() {}.getType();
             mStep = gson.fromJson(strOjb,list);
-            mCurrentPosition = savedInstanceState.getLong("player_current_position");
+            playWhenReady = savedInstanceState.getBoolean("playWhenReady");
+            playbackPosition = savedInstanceState.getLong("playbackPosition");
+            currentWindow = savedInstanceState.getInt("currentWindow");
+        } else {
+            // start video only at start
+            playWhenReady = true;
         }
 
         stepTitle.setText(mStep.getShortDescription());
         stepDescription.setText(mStep.getDescription());
 
-        if(mStep.getVideoURL() == null || mStep.getVideoURL().equals("")) {
-            mPlayerView.setVisibility(View.GONE);
-        } else {
-            // Initialize the Media Session.
-            if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && mTwoPane == false){
-                stepTitle.setVisibility(View.INVISIBLE);
-                stepDescription.setVisibility(View.INVISIBLE);
-            }
-            initializeMediaSession();
-            initializePlayer(Uri.parse(mStep.getVideoURL()));
-        }
         return rootView;
     }
 
@@ -96,62 +91,80 @@ public class StepDetailsFragment extends Fragment {
         this.mTwoPane = mTwoPane;
     }
 
-
     @Override
     public void onSaveInstanceState(Bundle currentState) {
+        Log.d(TAG, "onSaveInstanceState called : " + playWhenReady);
         Gson gson = new Gson();
         currentState.putString("steps", gson.toJson(mStep));
-        currentState.putLong("player_current_position", Math.max(0, mExoPlayer.getCurrentPosition()));
-
+        currentState.putBoolean("playWhenReady", playWhenReady);
+        currentState.putLong("playbackPosition", playbackPosition);
+        currentState.putInt("currentWindow", currentWindow);
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if(mExoPlayer != null) {
-            releasePlayer();
-            mMediaSession.setActive(false);
+    public void onStart() {
+        Log.d(TAG, "onStart called : " + playWhenReady);
+        super.onStart();
+        if(mStep.getVideoURL() == null || mStep.getVideoURL().equals("")) {
+            mPlayerView.setVisibility(View.GONE);
+        } else {
+            if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && mTwoPane == false){
+                stepTitle.setVisibility(View.INVISIBLE);
+                stepDescription.setVisibility(View.INVISIBLE);
+            }
+            initializeMediaSession();
+            initializePlayer();
         }
+    }
+
+    private void initializePlayer() {
+        // Creating the player
+        mExoPlayer = new SimpleExoPlayer.Builder(getContext()).build();
+
+        // Bind the play to the view
+        mPlayerView.setPlayer(mExoPlayer);
+
+        Uri uri = Uri.parse(mStep.getVideoURL());
+        MediaSource mediaSource = buildMediaSource(uri);
+
+        Log.d(TAG, "initializePlayer called : " + playWhenReady);
+        mExoPlayer.seekTo(currentWindow, playbackPosition);
+        mExoPlayer.prepare(mediaSource, false, false);
+        mExoPlayer.setPlayWhenReady(playWhenReady);
+    }
+
+    private MediaSource buildMediaSource(Uri uri) {
+        DataSource.Factory dataSourceFactory =
+                new DefaultDataSourceFactory(getContext(), "exoplayer-codelab");
+        return new ProgressiveMediaSource.Factory(dataSourceFactory)
+                .createMediaSource(uri);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        releasePlayer();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(mExoPlayer != null)
+            playWhenReady = mExoPlayer.getPlayWhenReady();
     }
 
     public void setStep(StepModel  step) {
         this.mStep = step;
     }
 
-
-    /**
-     * Initialize ExoPlayer.
-     * @param mediaUri The URI of the sample to play.
-     */
-    private void initializePlayer(Uri mediaUri) {
-        if (mExoPlayer == null) {
-            // Creating the player
-            mExoPlayer = new SimpleExoPlayer.Builder(getContext()).build();
-
-            // Bind the play to the view
-            mPlayerView.setPlayer(mExoPlayer);
-
-            // Produces DataSource instances through which media data is loaded.
-            DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(),
-                    Util.getUserAgent(getContext(), TAG));
-            // This is the MediaSource representing the media to be played.
-            MediaSource videoSource =
-                    new ProgressiveMediaSource.Factory(dataSourceFactory)
-                            .createMediaSource(mediaUri);
-            // Prepare the player with the source.
-            mExoPlayer.prepare(videoSource);
-            mExoPlayer.setPlayWhenReady(true);
-            mExoPlayer.seekTo(mCurrentPosition);
-        }
-    }
-
-    /**
-     * Release ExoPlayer.
-     */
     private void releasePlayer() {
-        mExoPlayer.stop();
-        mExoPlayer.release();
-        mExoPlayer = null;
+        if (mExoPlayer != null) {
+            playWhenReady = mExoPlayer.getPlayWhenReady();
+            playbackPosition = mExoPlayer.getCurrentPosition();
+            currentWindow = mExoPlayer.getCurrentWindowIndex();
+            mExoPlayer.release();
+            mExoPlayer = null;
+        }
     }
     private void initializeMediaSession() {
 
